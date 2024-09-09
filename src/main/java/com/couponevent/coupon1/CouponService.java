@@ -8,15 +8,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CouponService {
 
-    private CouponRepository couponRepository;
+    private final CouponRepository couponRepository;
+    private final CouponCountRepository couponCountRepository;
 
-    @Autowired
-    public CouponService(CouponRepository couponRepository) {
-        this.couponRepository = couponRepository;
-    }
 
     public void apply(Long memberId) {
-        long count = couponRepository.count();
+        //long count = couponRepository.count(); 동시성 이슈 발생
+        Long count = couponCountRepository.increase();
 
         if (count > 100) {
             return;

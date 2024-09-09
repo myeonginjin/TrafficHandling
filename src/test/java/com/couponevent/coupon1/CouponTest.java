@@ -1,14 +1,15 @@
 package com.couponevent.coupon1;
 
 
+import static org.assertj.core.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.concurrent.*;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 @SpringBootTest
 public class CouponTest {
@@ -61,7 +62,7 @@ public class CouponTest {
 
         long count = couponRepository.count();
         System.out.println("count = " + count);
-        assertEquals(count,100);
+        assertThat(count).isEqualTo(100);
     }
 
 }
