@@ -13,8 +13,12 @@ public class CouponService {
 
 
     public void apply(Long memberId) {
-        //long count = couponRepository.count(); 동시성 이슈 발생
+       //long count = couponRepository.count(); //동시성 이슈 발생
+
+
         Long count = couponCountRepository.increase();
+
+        System.out.println(count );
 
         if (count > 100) {
             return;
