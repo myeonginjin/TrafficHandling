@@ -18,7 +18,7 @@ public class CouponService {
 
         Long count = couponCountRepository.increase();
 
-        System.out.println(count );
+        System.out.println(memberId +" " +count );
 
         if (count > 100) {
             return;

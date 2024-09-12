@@ -49,6 +49,34 @@ public class CouponTest {
         4. 이후 count가 0에 다다르면 메인 스레드를 대기상태로부터 깨워 남은 로직을 수행하게 한다.
      */
 
+
+        //존나 신기한점 2 여기 반복문 범위가 1000보다 적으면 무한대기 됨. 메인스레드는 백스레드의 1000개의 작업 끝나길 기다리고
+        // 백스레드는 일 받기를 기다림
+        for (int i = 1; i <= 1000; i++) {
+            long memberId = i;
+            executorService.submit(() -> {
+                try {
+                    couponService.apply(memberId);
+                } finally {
+
+                    // 1000부터 줄여나가서 0이 되면 메인 스레드를 대기상태에서 해제한다.
+                    latch.countDown();
+
+                }
+            });
+        }
+
+        // 메인 스레드를 대기상태로 전환한다.
+        latch.await();   // ㅈㄴ신기한점 ! 만약 반복문의 범위 끝값의 숫자가 겁나게 크면 기더려주지않아도 된다.
+        //Thread.sleep(5000); 이렇게 해도 됨. 왜? 백스레드들이 비동기 일을 끝낼떄까지 기다리니까.
+
+        long count = couponRepository.count();
+        System.out.println("총 발급된 쿠폰의 수 count = " + count);
+        assertThat(count).isEqualTo(100);
+    }
+
+}
+
         /*
         메인스레드는 i를 1씩 증가시키면서 1000까지 도달한다.
         이때, 동기가 아니기 때문에 i가 1,2...일때마다 몸체 내부를 수행하는게 아니라 메인메서드는 i에 1부터 1000씩의 숫자를 집어 넣고,
@@ -70,7 +98,7 @@ public class CouponTest {
         */
 
 
-        // GPT 주석 수정글
+// GPT 주석 수정글
         /*
             메인스레드는 i를 1씩 증가시키면서 1000까지 도달한다.
             이때, 비동기적으로 동작하기 때문에 i가 1일 때, 2일 때마다 바로 각 스레드에게 작업을 할당한다.
@@ -86,29 +114,3 @@ public class CouponTest {
             latch.await()는 모든 스레드가 작업을 완료할 때까지 메인 스레드를 대기시켜 백그라운드 작업이 끝날 때까지 기다리도록 한다.
             만약 latch.await()을 사용하지 않으면 메인 스레드가 너무 빨리 종료되어 백그라운드 작업이 완료되지 않을 수 있다.
         */
-
-
-        for (int i = 1; i <= threadCount; i++) {
-            long memberId = i;
-            executorService.submit(() -> {
-                try {
-                    couponService.apply(memberId);
-                } finally {
-
-                    // 1000부터 줄여나가서 0이 되면 메인 스레드를 대기상태에서 해제한다.
-                    latch.countDown();
-
-                }
-            });
-        }
-
-        // 메인 스레드를 대기상태로 전환한다.
-        latch.await();   // ㅈㄴ신기한점 ! 만약 반복문의 범위 끝값의 숫자가 겁나게 크면 기더려주지않아도 된다.
-        //Thread.sleep(5000); 이렇게 해도 됨. 왜? 백스레드들이 비동기 일을 끝낼떄까지 기다리니까.
-
-        long count = couponRepository.count();
-        System.out.println("count = " + count);
-        assertThat(count).isEqualTo(100);
-    }
-
-}
